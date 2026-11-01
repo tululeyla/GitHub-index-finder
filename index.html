@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Profile Finder</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="header">
+  <div class="header-container">
+     <div class="logo">
+    <img src="images/logo.png" alt="GitHub Logo">
+    <h1>GitHub Finder</h1>
+  </div>
+  <nav class="nav-bar">
+    <ul id="navBar">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#api-docs">API Docs</a></li>
+    </ul>
+  </nav>
+  </div>
+</header>
+  
+  
+
+<main class="main-section">
+<section class="hero-section">
+<div class="hero-container">
+
+  <div class="search-bar">
+    <h1>Discover GitHub Profiles</h1>
+    <form action="#">
+      <input type="search" id="searchInput" placeholder="Enter GitHub username..." required>
+      <button type="submit" id="btn" class="btn search-button">🔍︎ Search</button>
+    </form>
+    <p id="errorMsg" style="color: red; margin-top: 20px;"></p>
+  </div>
+
+  <div class="profile" id="profileCard">
+    <div class="github-logo">
+      <img src="images/profile.jpg" alt="GitHub Logo" id="avatar">
+      <a href="#" rel="noopener noreferrer" target="_blank" class="btn" id="viewProfileBtn">View Profile on GitHub</a>
+    </div>
+
+    <div class="profile-description" >
+       <h2 id="name">octocat</h2>
+       <span id="username">@octocat</span>
+       <p id="bio">GitHub's friendly mascot. I love octopuses and open source!</p>
+       <div class="description">
+        <span class="desc address" id="location">📍 San Francisco,CA</span>
+        <span class="date desc" id="date">&#128197; Joined on Jan 25, 2008</span>
+       </div>
+       <div class="profile-desc" id="card">
+        <div class="card">
+          <span >Public Repos:</span>
+          <span class="number" id="publicRepos">8</span>
+        </div>
+
+        <div class="card">
+          <span>Followers:</span>
+          <span class="number" id="followers">10K+</span>
+        </div>
+
+        <div class="card">
+          <span>Following:</span>
+          <span class="number" id="following">0</span>
+        </div>
+       </div>
+    </div>
+  </div>
+</div>
+
+</section>
+
+<section class="
+repo-section">
+<div class="repo-container" id="reposContainer"><!-- Dynamic repositories will render here --></div>
+</section>
+
+</main>
+  <script src="script.js"></script>
+</body>
+</html>
