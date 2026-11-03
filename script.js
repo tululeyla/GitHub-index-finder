@@ -33,7 +33,7 @@ async function updateProfileUI() {
   const location = document.getElementById('location');
   const errorMsg = document.getElementById('errorMsg');
   const reposContainer = document.getElementById('reposContainer'); // Queried right here safely!
-
+  const repoSection = document.querySelector(".repo-section");
   errorMsg.textContent = '';
   reposContainer.innerHTML = '';
 
@@ -43,6 +43,7 @@ async function updateProfileUI() {
 
   if (!user) {
     errorMsg.textContent = 'User not found. Please try again.';
+    repoSection.hidden = true;
     return;
   }
 
@@ -86,7 +87,7 @@ async function fetchUserRepos(username) {
     console.log(reposData);
     const reposContainer = document.getElementById('reposContainer');
 
-    const repoList = reposData.length === 0 ? `<div class="repo-card"><p class="no-repos">No repositories found.</p></div>` : reposData.map(repo => {
+    const repoList = reposData.length === 0 ? `<p class="no-repos">No repositories found.</p>` : reposData.map(repo => {
       return `
         <div class="repo-card">
           <h3>${repo.name}</h3>
@@ -95,6 +96,7 @@ async function fetchUserRepos(username) {
         </div>
  `;
     }).join('');
+
 
 
     reposContainer.innerHTML = repoList;
