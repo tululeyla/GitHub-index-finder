@@ -33,7 +33,7 @@ async function updateProfileUI() {
   const location = document.getElementById('location');
   const errorMsg = document.getElementById('errorMsg');
   const reposContainer = document.getElementById('reposContainer'); // Queried right here safely!
-  const repoSection = document.querySelector(".repo-section");
+  
   errorMsg.textContent = '';
   reposContainer.innerHTML = '';
 
@@ -43,7 +43,6 @@ async function updateProfileUI() {
 
   if (!user) {
     errorMsg.textContent = 'User not found. Please try again.';
-    repoSection.hidden = true;
     return;
   }
 
