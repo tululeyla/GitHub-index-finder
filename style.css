@@ -181,7 +181,7 @@ color: #080808;
   margin: 20px auto;
   padding: 20px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   border-radius: 4px;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
@@ -195,4 +195,15 @@ color: #080808;
   gap: 10px;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
+.repo-card:has(.no-repos) {
+  max-width: 100%;
+  margin: 0 auto;
+}
+.no-repos {
+ font-size: 1.2rem;
+ font-weight: 600;
+ color:red;
+}
+ 
+
 
