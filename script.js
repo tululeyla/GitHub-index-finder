@@ -1,109 +1,160 @@
-const searchInput = document.getElementById('searchInput');
-const form = document.querySelector('form');
+const form = document.getElementById("searchForm");
+const searchInput = document.getElementById("searchInput");
+const searchButton = document.getElementById("searchButton");
+const errorMessage = document.getElementById("errorMsg");
+const reposContainer = document.getElementById("reposContainer");
+
+const elements = {
+  avatar: document.getElementById("avatar"),
+  name: document.getElementById("name"),
+  username: document.getElementById("username"),
+  bio: document.getElementById("bio"),
+  location: document.getElementById("location"),
+  date: document.getElementById("date"),
+  profileLink: document.getElementById("viewProfileBtn"),
+  publicRepos: document.getElementById("publicRepos"),
+  followers: document.getElementById("followers"),
+  following: document.getElementById("following"),
+};
 
 async function fetchGitHubUser(username) {
-  try {
-    const response = await fetch(`https://api.github.com/users/${username}`);
-    if (!response.ok) {
-      throw new Error(`User not found: ${response.status}`);
-    }
-    const userData = await response.json();
-    return userData;
+  const response = await fetch(
+    `https://api.github.com/users/${encodeURIComponent(username)}`
+  );
 
-  } catch (error) {
-    console.error('Error fetching GitHub user data:', error);
+  if (response.status === 404) {
+    throw new Error("That GitHub username was not found. Please try again.");
   }
+
+  if (!response.ok) {
+    throw new Error("Could not load the profile. Please try again later.");
+  }
+
+  return response.json();
 }
 
+async function fetchUserRepos(username) {
+  const response = await fetch(
+    `https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=updated&per_page=6`
+  );
 
+  if (!response.ok) {
+    throw new Error("Could not load this user's repositories.");
+  }
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  await updateProfileUI();
-  /**/
-  form.reset();
-});
+  return response.json();
+}
 
+function formatNumber(value) {
+  return new Intl.NumberFormat().format(value);
+}
 
-async function updateProfileUI() {
-  const profileImage = document.getElementById('avatar');
-  const name = document.getElementById('name');
-  const username = document.getElementById('username');
-  const bio = document.getElementById('bio');
-  const location = document.getElementById('location');
-  const errorMsg = document.getElementById('errorMsg');
-  const reposContainer = document.getElementById('reposContainer'); // Queried right here safely!
-  
-  errorMsg.textContent = '';
-  reposContainer.innerHTML = '';
+function displayProfile(user) {
+  elements.avatar.src = user.avatar_url;
+  elements.avatar.alt = `${user.login}'s GitHub avatar`;
 
-  const profile = searchInput.value.trim();
-  const user = await fetchGitHubUser(profile);
+  elements.name.textContent = user.name || user.login;
+  elements.username.textContent = `@${user.login}`;
+  elements.bio.textContent = user.bio || "No bio available.";
+  elements.location.textContent = user.location
+    ? `📍 ${user.location}`
+    : "Location not specified";
 
+  const joinedDate = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(user.created_at));
 
-  if (!user) {
-    errorMsg.textContent = 'User not found. Please try again.';
+  elements.date.textContent = `📅 Joined ${joinedDate}`;
+  elements.profileLink.href = user.html_url;
+
+  elements.publicRepos.textContent = formatNumber(user.public_repos);
+  elements.followers.textContent = formatNumber(user.followers);
+  elements.following.textContent = formatNumber(user.following);
+}
+
+function displayRepos(repositories) {
+  reposContainer.replaceChildren();
+
+  if (repositories.length === 0) {
+    const message = document.createElement("p");
+    message.className = "repo-message";
+    message.textContent = "No public repositories found.";
+    reposContainer.append(message);
     return;
   }
 
-  profileImage.src = user.avatar_url;
-  name.textContent = user.name || user.login;
-  username.textContent = `@${user.login}`;
-  bio.textContent = user.bio || 'No bio available.';
-  location.textContent = user.location ? `📍 ${user.location}` : 'Location not specified.';
-  const viewProfileBtn = document.getElementById('viewProfileBtn');
-  viewProfileBtn.href = user.html_url;
+  for (const repo of repositories) {
+    const card = document.createElement("article");
+    card.className = "repo-card";
 
-  const publicRepos = document.getElementById('publicRepos');
-  publicRepos.textContent = user.public_repos;
+    const title = document.createElement("h3");
+    title.textContent = repo.name;
 
-  const followers = document.getElementById('followers');
-  followers.textContent = user.followers;
+    const description = document.createElement("p");
+    description.textContent = repo.description || "No description available.";
 
-  const following = document.getElementById('following');
-  following.textContent = user.following;
+    const link = document.createElement("a");
+    link.className = "button";
+    link.href = repo.html_url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = "View repository";
 
-  const dateJoined = document.getElementById('date');
-  const date = new Date(user.created_at);
-  const options = new Intl.DateTimeFormat('en-US',
-    {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    }).format(date);
-
-  dateJoined.textContent = `📅 Joined ${options}`;
-  await fetchUserRepos(profile);
-
-}
-async function fetchUserRepos(username) {
-  try {
-    const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=5`);
-    if (!response.ok) {
-      throw new Error(`Error fetching repositories: ${response.status}`);
-    }
-    const reposData = await response.json();
-    console.log(reposData);
-    const reposContainer = document.getElementById('reposContainer');
-
-    const repoList = reposData.length === 0 ? `<p class="no-repos">No repositories found.</p>` : reposData.map(repo => {
-      return `
-        <div class="repo-card">
-          <h3>${repo.name}</h3>
-          <p>${repo.description || 'No description available.'}</p>
-          <a href="${repo.html_url}" target="_blank" rel="noopener noreferrer" class="btn">View Repository</a>
-        </div>
- `;
-    }).join('');
-
-
-
-    reposContainer.innerHTML = repoList;
-  } catch (error) {
-    console.error('Error fetching user repositories:', error);
+    card.append(title, description, link);
+    reposContainer.append(card);
   }
 }
-window.addEventListener('DOMContentLoaded', async (e) => {
-  await fetchUserRepos('octocat');
+
+async function loadProfile(username) {
+  errorMessage.textContent = "";
+  reposContainer.replaceChildren();
+
+  const loadingMessage = document.createElement("p");
+  loadingMessage.className = "repo-message";
+  loadingMessage.textContent = "Loading repositories…";
+  reposContainer.append(loadingMessage);
+
+  try {
+    const user = await fetchGitHubUser(username);
+    displayProfile(user);
+
+    try {
+      const repositories = await fetchUserRepos(user.login);
+      displayRepos(repositories);
+    } catch (error) {
+      reposContainer.replaceChildren();
+
+      const message = document.createElement("p");
+      message.className = "repo-message";
+      message.textContent = error.message;
+      reposContainer.append(message);
+    }
+  } catch (error) {
+    errorMessage.textContent = error.message;
+    reposContainer.replaceChildren();
+
+    const message = document.createElement("p");
+    message.className = "repo-message";
+    message.textContent = "Repositories will appear here when a profile loads.";
+    reposContainer.append(message);
+  }
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const username = searchInput.value.trim();
+  if (!username) return;
+
+  searchButton.disabled = true;
+  searchButton.textContent = "Searching…";
+
+  await loadProfile(username);
+
+  searchButton.disabled = false;
+  searchButton.textContent = "Search";
 });
 
+loadProfile("octocat");
